@@ -1,0 +1,25 @@
+<template>
+    <lightning-card>
+        <lightning-record-edit-form
+        object-api-name="Product2"
+        record-id={vueloId}
+        onsuccess={handleSuccess}
+        onchange={handleChange}>
+            <lightning-input-field  field-name="Piloto__c"></lightning-input-field>
+            <lightning-input-field field-name="Copiloto__c"></lightning-input-field>
+            <lightning-dual-listbox name="Auxiliares"
+                            label="Auxiliares"
+                            source-label="Disponibles"
+                            selected-label="Seleccionados"
+                            options={options}
+                            value={values}></lightning-dual-listbox>
+
+            <lightning-button variant="brand" type="submit" label="Guardar">
+            </lightning-button>
+        
+    </lightning-record-edit-form>
+
+</lightning-card>
+
+    
+</template>

@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Crear Cliente" >
+        <lightning-record-edit-form
+        object-api-name="Contact"
+        onsuccess={handleSuccess}>
+        <lightning-input-field field-name="FirstName"> </lightning-input-field>
+        <lightning-input-field field-name="LastName"> </lightning-input-field>
+        <lightning-input-field field-name="Tipo_de_identificacion__c" value={tipoIdent}> </lightning-input-field>
+        <lightning-input-field field-name="Numero_de_identificacion__c" value={numIdent}> </lightning-input-field>
+        <lightning-input-field field-name="Numero_de_pasaporte__c"> </lightning-input-field>
+        <lightning-input-field field-name="Email"> </lightning-input-field>
+        <lightning-input-field field-name="Nacionalidad__c"> </lightning-input-field>
+        <lightning-button variant="brand" type="submit" label="Guardar"></lightning-button>  
+       
+        </lightning-record-edit-form>
+    </lightning-card>
+</template>

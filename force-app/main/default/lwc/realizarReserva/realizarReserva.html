@@ -1,0 +1,94 @@
+<template >
+    <lightning-card title="Realizar reserva">
+        <br>
+        <h1>Buscar cliente</h1>
+        <br>
+        <lightning-combobox label="Tipo de identificación"  options={tipos}
+        onchange={onchangeTipoDoc}></lightning-combobox>
+        <lightning-input label="Número de identificación:"
+        type="text" onchange={onchangeNumId} ></lightning-input>
+        <lightning-button variant="brand" label=Buscar  onclick={buscarClienteClick}></lightning-button>
+
+    </lightning-card>
+
+    <template if:true={crearCliente}>
+        <lightning-card title="Crear Cliente" >
+            <lightning-record-edit-form
+            object-api-name="Contact"
+            onsuccess={handleSuccess}>
+            <lightning-input-field field-name="FirstName"> </lightning-input-field>
+            <lightning-input-field field-name="LastName"> </lightning-input-field>
+            <lightning-input-field field-name="Tipo_de_identificacion__c" value={tipoidentificacion}> </lightning-input-field>
+            <lightning-input-field field-name="Numero_de_identificacion__c" value={numeroidentificacion}> </lightning-input-field>
+            <lightning-input-field field-name="Numero_de_pasaporte__c"> </lightning-input-field>
+            <lightning-input-field field-name="Email"> </lightning-input-field>
+            <lightning-input-field field-name="Nacionalidad__c"> </lightning-input-field>
+            <lightning-button variant="brand" type="submit" label="Guardar"></lightning-button>  
+           
+            </lightning-record-edit-form>
+        </lightning-card>
+
+    </template>
+    
+
+    <template if:true={mostrarCrearReserva}> 
+        <lightning-layout>
+            <lightning-card class="slds-align_absolute-center" id="seccionCrearReserva">
+                <h1 class="mensaje">Se ha creado una reserva</h1>
+                <br>
+                <div style="height: 350px;">
+                    <lightning-datatable
+                    key-field="Id"
+                    data={vuelos.data}
+                    max-row-selection="1"
+                    columns={columns}
+                    onrowselection={seleccionarVueloFila}>
+                    </lightning-datatable>
+                </div>
+                <lightning-button variant="brand" label="Seleccionar tiquete"  onclick={seleccionTiqueteClick}></lightning-button>
+                <br>
+                <lightning-card>
+                    <lightning-input> </lightning-input>
+                </lightning-card>
+                <lightning-card title="Agregar pasajeros">
+                    <lightning-combobox label="Tipo de identificación"  options={tipos}
+                        onchange={handleChange}></lightning-combobox>
+                    <lightning-input label="Número de identificación:"
+                        type="number"></lightning-input>
+                    <lightning-button variant="brand" label="Agregar"  onclick={buscarClienteClick}></lightning-button>
+                </lightning-card>
+            </lightning-card>
+        </lightning-layout>
+    </template>
+
+    <template if:true={isModalOpen}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Seleccionar tipo de tiquete</h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <lightning-card>
+                    <lightning-combobox
+                    label="Lista de precios"
+                    options={Listas}
+                    onchange={handleChangeListaPrecios}
+                ></lightning-combobox>
+                </lightning-card>
+                <!-- Modal/Popup Box LWC footer starts here -->
+                
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+        
+    </template>
+</template>

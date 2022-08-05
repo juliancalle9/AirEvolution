@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Airbus_A330F</fullName>
+    <columns>NAME</columns>
+    <columns>Activo__c</columns>
+    <columns>N_mero_de_avi_n__c</columns>
+    <columns>Solo_carga__c</columns>
+    <columns>Capacidad_de_carga__c</columns>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>NAME</field>
+        <operation>equals</operation>
+        <value>Airbus A330F</value>
+    </filters>
+    <label>Airbus A330F</label>
+</ListView>
