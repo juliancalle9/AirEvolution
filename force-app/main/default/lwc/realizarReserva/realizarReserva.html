@@ -23,23 +23,29 @@
             <lightning-input-field field-name="Numero_de_pasaporte__c"> </lightning-input-field>
             <lightning-input-field field-name="Email"> </lightning-input-field>
             <lightning-input-field field-name="Nacionalidad__c"> </lightning-input-field>
-            <lightning-button variant="brand" type="submit" label="Guardar"></lightning-button>  
+            <lightning-button variant="brand" type="submit" label="Guardar" onclick={crearClienteClick}></lightning-button>  
            
             </lightning-record-edit-form>
         </lightning-card>
 
     </template>
     
-
+    <template if:true={clienteConReservas}>
+        <div>
+            <p>El cliente ya cuenta con una reserva, por favor completarla para crear una nueva reserva</p>
+        </div>
+    </template>
     <template if:true={mostrarCrearReserva}> 
         <lightning-layout>
             <lightning-card class="slds-align_absolute-center" id="seccionCrearReserva">
-                <h1 class="mensaje">Se ha creado una reserva</h1>
+                <div>
+                    <p>Se ha creado una reserva con éxito en estado pre-venta</p>
+                </div>
                 <br>
                 <div style="height: 350px;">
                     <lightning-datatable
-                    key-field="Id"
-                    data={vuelos.data}
+                    key-field="idVuelo"
+                    data={data}
                     max-row-selection="1"
                     columns={columns}
                     onrowselection={seleccionarVueloFila}>
@@ -85,6 +91,10 @@
                 ></lightning-combobox>
                 </lightning-card>
                 <!-- Modal/Popup Box LWC footer starts here -->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancelar</button>
+                    <button class="slds-button slds-button_brand" onclick={guardarTipoListaClick} title="Guardar">Guardar</button>
+                </footer>
                 
             </div>
         </section>

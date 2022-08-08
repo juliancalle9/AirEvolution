@@ -1,7 +1,8 @@
 import { LightningElement, track, wire } from 'lwc';
 import buscarCliente from '@salesforce/apex/Cliente.buscarCliente';
-import crearReserva from '@salesforce/apex/Cliente.validarReservas';
 import obtenerVuelos from '@salesforce/apex/Cliente.encontrarVuelos';
+import validarReservas from '@salesforce/apex/Cliente.validarReservas';
+import crearReservas from '@salesforce/apex/Cliente.crearReserva';
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -10,7 +11,8 @@ const columns = [
     { label: 'Fecha y hora de partida', fieldName: 'fechaPartida', type: 'datetime' },
     { label: 'Fecha y hora estimida de llegada',fieldName: 'fechaEstimadaLlegada', type: 'datetime'},
     { label: 'Aeropuerto de partida', fieldName: 'aeropuertoSalida', type: 'text'},
-    { label: 'Aeropuerto de llegada', fieldName: 'aeropuertoLlegada', type: 'text'}, 
+    { label: 'Aeropuerto de llegada', fieldName: 'aeropuertoLlegada', type: 'text'},
+    { label: 'Precio', fieldName: 'precioUnitario'}, 
    
 ];
 
@@ -23,7 +25,22 @@ export default class RealizarReserva extends LightningElement {
     @track crearCliente = false;
     @track mostrarCrearReserva = false;
     @track mostrarVuelos = false;
-    @wire(obtenerVuelos)vuelos;
+    @track clienteConReservas = false; 
+    @wire(obtenerVuelos)vuelos(result){
+        console.log(this.result);
+        if(result.data) {
+            console.log('si trajo algo');
+            this.data = result.data;
+            console.log(this.data[0]);
+            this.error = undefined;
+        }else if(result.error) {
+            console.log('no trajo nada');
+            console.log(result.error);
+            this.error = result.error;
+            this.data = undefined;
+        }
+
+    }
     
     numeroidentificacion;
     tipoidentificacion;
@@ -31,16 +48,17 @@ export default class RealizarReserva extends LightningElement {
     idcontacto;
     codigoVuelo;
     idvuelo;
-    tipoTiquete;
     vueloSeleccionado;
-    lista;
     isModalOpen;
+    tieneReserva;
+    listaPrecio;
+    
+    
 
     get tipos(){
         return [
             { label: 'Cédula de ciudadania', value: 'Cédula de ciudadania' },
             { label: 'Cédula de extranjería', value: 'Cédula de extranjería' },
-            
         ];
     }
 
@@ -48,8 +66,15 @@ export default class RealizarReserva extends LightningElement {
         return [
             { label: 'Clase turista', value: 'Standard Price Book' },
             { label: 'Clase negocios', value: 'Tiquete negocios' },
-            
         ];
+    }
+
+    get contactoId(){
+        if(this.contacto != null){
+            return this.contacto.id;
+        }else{
+            return '';
+        }
     }
 
     buscarClienteClick(event){
@@ -59,16 +84,40 @@ export default class RealizarReserva extends LightningElement {
             this.error = undefined;
             if(this.contacto === null){
                 this.crearCliente = true;
+
             }else{
-                this.mostrarCrearReserva = true;
+                validarReservas({idContacto : this.contacto})
+                .then((result) =>{
+                    this.error = undefined;
+                    if(result === true){
+                        
+                        this.isModalOpen = true;
+                    }else{
+                        this.clienteConReservas = true;
+                    }
+                }); 
             }
-            this.isModalOpen = true;
         });
     }
+
+    crearClienteClick(event){
+        this.isModalOpen = true;
+    }
+
+    guardarTipoListaClick(event){
+        console.log(this.contacto);
+        crearReservas({idContacto : this.contacto, tipoTiquete : this.listaPrecio})
+        .then((result) =>{
+            this.error = undefined;
+            this.mostrarCrearReserva = true;
+            this.isModalOpen = false;
+        });
+    }
+
     
     handleChangeListaPrecios(event){
-        this.lista = event.detail.value;
-        console.log(this.lista);
+        this.listaPrecio = event.detail.value;
+        console.log(this.listaPrecio);
     }
 
     onchangeTipoDoc(event) {
@@ -94,16 +143,10 @@ export default class RealizarReserva extends LightningElement {
        
         this.dispatchEvent(evt);
         this.crearCliente = false;
-        this.idcontacto = event.detail.id;
-        String(this.idcontacto);
-        console.log(this.idcontacto + ' id contacto');
-        crearReserva({idContacto : this.idcontacto})
-        .then((result) =>{
-                console.log('si entro');
-                console.log(this.idcontacto);
-                this.mostrarCrearReserva = true;
-                this.error = undefined;
-        });
+        this.contacto.id = event.detail.id;
+        String(this.contacto.id);
+        console.log(this.contacto.id + ' id contacto');
+        
     }
 
     seleccionarVueloFila(event){

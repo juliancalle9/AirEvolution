@@ -2,71 +2,89 @@ public with sharing class Cliente {
 
     //metodo para buscar un cliente por medio de su número de identificación y tipo de identificación
     @AuraEnabled
-    public static Contact buscarCliente(string numeroIdentificacion, string tipoIdentificacion){
+    public static string buscarCliente(string numeroIdentificacion, string tipoIdentificacion){
         try{
             date fecha = date.today();
             Contact cliente = [SELECT id, name FROM Contact 
                                 WHERE Numero_de_identificacion__c = :numeroIdentificacion AND Tipo_de_identificacion__c =: tipoIdentificacion];
-            validarReservas(cliente.id);
-            return cliente;
+            //validarReservas(cliente);
+            return cliente.Id;
 
         }catch(Exception e){
             return null;
         }
     }
     @AuraEnabled
-    public static void validarReservas(string idContacto, string lista){
+    public static Boolean validarReservas(string idContacto){
         date fecha = date.today();
         List<Opportunity> reservaCreada = new List<Opportunity>();
         List<Opportunity> reservas = [SELECT Id, Name FROM Opportunity WHERE Titular_de_reserva__c =: idContacto AND StageName NOT IN ('Pagado', 'No pagado')];
         if(reservas.size() == 0){
-            Opportunity nuevaReserva = new Opportunity(Titular_de_reserva__c = idContacto, StageName = 'pre-venta', CloseDate = fecha, Name = 'a');
-            insert nuevaReserva;
-            
-            reservaCreada.add(nuevaReserva);
-            //return reservaCreada;
+            return true;
         }else{
-            //return reservas;
+            return false;
         }
     }
 
     @AuraEnabled(cacheable=true)
     public static list<vuelo> encontrarVuelos(){
+        string lista = '01s8a000001WNLuAAO';
         try{
             List<vuelo> vuelosLista = new List<vuelo>();
-            List<Product2> vuelos = [SELECT Name, fecha_y_hora_de_partida__c, Fecha_y_hora_estimada_de_llegada__c, Aeropuerto_de_llegada__r.Name, Aeropuerto_de_partida__r.Name FROM Product2 
+            List<Product2> vuelos = [SELECT Name, fecha_y_hora_de_partida__c, Fecha_y_hora_estimada_de_llegada__c, Aeropuerto_de_llegada__r.Name, Aeropuerto_de_partida__r.Name,
+            (select unitprice from pricebookEntries WHERE Pricebook2Id =: lista) FROM Product2 
             WHERE Estado__c = 'En venta'];
             for(Product2 v : vuelos){
-                vuelosLista.add(new vuelo((string)v.id, v.Name, (datetime)v.fecha_y_hora_de_partida__c, (datetime)v.Fecha_y_hora_estimada_de_llegada__c, (string)v.Aeropuerto_de_partida__r.Name, (string)v.Aeropuerto_de_llegada__r.Name));
+                if(v.PricebookEntries.size() > 0){
+                    vuelosLista.add(new vuelo((string)v.id, v.Name, v.fecha_y_hora_de_partida__c, v.Fecha_y_hora_estimada_de_llegada__c,
+                    v.Aeropuerto_de_partida__r.Name, v.Aeropuerto_de_llegada__r.Name, v.pricebookEntries[0].unitprice));
+                }
             }
             return vuelosLista;
         }catch(Exception e){
-            return null;
+            throw new AuraHandledException(e.getMessage());
         }
+    }
+    @AuraEnabled
+    public static Opportunity crearReserva(string idContacto, string tipoTiquete){
+        date fecha = date.today();
+        List<Pricebook2> listasPrecios = [Select Id, Name from Pricebook2];
+        Id idLista;
+        for(Pricebook2 l : listasPrecios){
+            if(l.Name == tipoTiquete){
+                idLista = l.Id;
+            }
+        }
+        Opportunity nuevaReserva = new Opportunity(Titular_de_reserva__c = idContacto, StageName = 'pre-venta', CloseDate = fecha, Name = 'Nombre', Pricebook2Id = idLista);
+        insert nuevaReserva;
+        return nuevaReserva;
     }
 
     public class vuelo{
         @AuraEnabled
-        public string idVuelo;
+        public string idVuelo {get;set;} 
         @AuraEnabled
-        public string codVuelo;
+        public string codVuelo {get;set;}
         @AuraEnabled
-        public Datetime fechaPartida;
+        public Datetime fechaPartida {get;set;}
         @AuraEnabled
-        public Datetime fechaEstimadaLlegada;
+        public Datetime fechaEstimadaLlegada {get;set;}
         @AuraEnabled
-        public string aeropuertoSalida;
+        public string aeropuertoSalida {get;set;}
         @AuraEnabled
-        public string aeropuertoLlegada;
+        public string aeropuertoLlegada {get;set;}
+        @AuraEnabled
+        public decimal precioUnitario {get;set;}
         
         
-        public vuelo(string id, string name, Datetime fechaSalida, Datetime fechaEst, string aeroSalida, string aeroLlegada){
+        public vuelo(string id, string name, Datetime fechaSalida, Datetime fechaEst, string aeroSalida, string aeroLlegada, decimal precio){
             idVuelo = id;
             codVuelo = name;
             fechaPartida = fechaSalida;
             fechaEstimadaLlegada = fechaEst;
             aeropuertoSalida = aeroSalida;
             aeropuertoLlegada = aeroLlegada;
+            precioUnitario = precio;
         }
     }
 }
