@@ -1,3 +1,4 @@
+<!--BUSQUEDA DE CLIENTE-->
 <template >
     <lightning-card title="Realizar reserva">
         <br>
@@ -10,7 +11,7 @@
         <lightning-button variant="brand" label=Buscar  onclick={buscarClienteClick}></lightning-button>
 
     </lightning-card>
-
+    <!--CREACION DE CLIENTE-->
     <template if:true={crearCliente}>
         <lightning-card title="Crear Cliente" >
             <lightning-record-edit-form
@@ -31,6 +32,7 @@
     </template>
     
     <template if:true={clienteConReservas}>
+        <!--MENSAJE CUANDO EL CLIENTE YA TIENE UNA RESERVA-->
         <div>
             <p>El cliente ya cuenta con una reserva, por favor completarla para crear una nueva reserva</p>
         </div>
@@ -38,10 +40,12 @@
     <template if:true={mostrarCrearReserva}> 
         <lightning-layout>
             <lightning-card class="slds-align_absolute-center" id="seccionCrearReserva">
+                <!--MENSAJE DE RESERVA CREADA-->
                 <div>
                     <p>Se ha creado una reserva con éxito en estado pre-venta</p>
                 </div>
                 <br>
+                <!--TABLA DE VUELOS-->
                 <div style="height: 350px;">
                     <lightning-datatable
                     key-field="idVuelo"
@@ -51,22 +55,51 @@
                     onrowselection={seleccionarVueloFila}>
                     </lightning-datatable>
                 </div>
-                <lightning-button variant="brand" label="Seleccionar tiquete"  onclick={seleccionTiqueteClick}></lightning-button>
                 <br>
-                <lightning-card>
-                    <lightning-input> </lightning-input>
-                </lightning-card>
-                <lightning-card title="Agregar pasajeros">
-                    <lightning-combobox label="Tipo de identificación"  options={tipos}
-                        onchange={handleChange}></lightning-combobox>
-                    <lightning-input label="Número de identificación:"
-                        type="number"></lightning-input>
-                    <lightning-button variant="brand" label="Agregar"  onclick={buscarClienteClick}></lightning-button>
-                </lightning-card>
+                <!--SELECCIÓN DE EQUIPAJE-->
+                <lightning-dual-listbox
+                label="Selección equipaje"
+                source-label="Equipaje"
+                selected-label="Seleccionado"
+                field-level-help="Para clase negocios el equipaje no tiene costo"
+                options={equipajes}
+                onchange={handleEquipaje}>
+                </lightning-dual-listbox>
+                <!--CREACIÓN DE TIQUETE-->
+                <lightning-button variant="brand" label="Crear tiquete"  onclick={crearTiqueteClick} onsuccess={handleTiqueteCreado}></lightning-button>
             </lightning-card>
         </lightning-layout>
     </template>
 
+    <!--SELECCIÓN DE PASAJEROS-->
+    <template if:true={seleccionPasajerosTemplate}>
+        <lightning-card title="Agregar pasajeros">
+            <lightning-combobox label="Tipo de identificación"  options={identPasajeros}
+                onchange={onchangeTipoDoc}></lightning-combobox>
+            <lightning-input label="Número de identificación:"
+                type="text" onchange={onchangeNumId}></lightning-input>
+            <lightning-button variant="brand-outline" label="Buscar"  onclick={buscarPasajeroClick}></lightning-button>
+        </lightning-card>
+        <lightning-layout>
+            <lightning-card>
+                <lightning-layout-item>
+                    <lightning-record-view-form
+                    record-id={contacto}
+                    object-api-name="Contact">
+                        <lightning-output-field field-name="Name"></lightning-output-field>
+                        <lightning-output-field field-name="Tipo_de_identificacion__c"></lightning-output-field>
+                        <lightning-output-field field-name="Numero_de_identificacion__c"></lightning-output-field>
+                        <lightning-output-field field-name="Nacionalidad__c"></lightning-output-field>
+                    </lightning-record-view-form>
+                    <lightning-button variant="success" label="Agregar"  onclick={agregarPasajeroClick}></lightning-button>
+                </lightning-layout-item>
+            </lightning-card>
+        </lightning-layout>
+
+    </template>
+        
+
+    <!--MODAL PARA LA SELECCION DE LISTA DE PRECIOS-->
     <template if:true={isModalOpen}>
         <!-- Modal/Popup Box LWC starts here -->
         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">

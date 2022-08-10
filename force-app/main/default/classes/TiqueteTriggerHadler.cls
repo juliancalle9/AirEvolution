@@ -10,7 +10,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
     public void beforeInsert(List<OpportunityLineItem> newRecords){
         Sobreventa(newRecords);
         pasajeroDeReserva(newRecords);
-        AsignarClaseNegocios(newRecords);
+       // AsignarClaseNegocios(newRecords);
     }
     public void beforeUpdate(List<OpportunityLineItem> oldRecords, List<OpportunityLineItem> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
 
@@ -36,11 +36,9 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
         List<Opportunity> opportunityNew = new List<Opportunity>([SELECT Id,Titular_de_reserva__c FROM Opportunity WHERE StageName = 'pre-venta']);
         for (Opportunity r: opportunityNew){
             for (OpportunityLineItem t : opportunityLineItemNew) {
-                if(t.OpportunityId == r.Id){
-                    t.Pasajero__c = r.Titular_de_reserva__c;
-                    
+                if(t.OpportunityId == r.Id && t.Pasajero__c == null){ 
+                        t.Pasajero__c = r.Titular_de_reserva__c;
                 }
-                
             }
         }
     }
@@ -74,7 +72,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
         }
     }
 
-    public static void AsignarClaseNegocios(List<OpportunityLineItem> tiquList){
+   /* public static void AsignarClaseNegocios(List<OpportunityLineItem> tiquList){
         Set<Id> idVuelo = new Set<Id>();
         for (OpportunityLineItem tiq : tiquList){
             idVuelo.add(tiq.Product2Id);
@@ -90,7 +88,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
             }        
         }  
 
-    }
+    }*/
 
 
 }

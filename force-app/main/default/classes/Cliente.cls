@@ -27,12 +27,13 @@ public with sharing class Cliente {
     }
 
     @AuraEnabled(cacheable=true)
-    public static list<vuelo> encontrarVuelos(){
-        string lista = '01s8a000001WNLuAAO';
+    public static list<vuelo> encontrarVuelos(string lista){
+        
         try{
+            Pricebook2 listaPrecio = [SELECT id FROM Pricebook2 WHERE Name =: lista];
             List<vuelo> vuelosLista = new List<vuelo>();
             List<Product2> vuelos = [SELECT Name, fecha_y_hora_de_partida__c, Fecha_y_hora_estimada_de_llegada__c, Aeropuerto_de_llegada__r.Name, Aeropuerto_de_partida__r.Name,
-            (select unitprice from pricebookEntries WHERE Pricebook2Id =: lista) FROM Product2 
+            (select unitprice from pricebookEntries WHERE Pricebook2Id =: listaPrecio.Id) FROM Product2 
             WHERE Estado__c = 'En venta'];
             for(Product2 v : vuelos){
                 if(v.PricebookEntries.size() > 0){
@@ -46,7 +47,7 @@ public with sharing class Cliente {
         }
     }
     @AuraEnabled
-    public static Opportunity crearReserva(string idContacto, string tipoTiquete){
+    public static string crearReserva(string idContacto, string tipoTiquete){
         date fecha = date.today();
         List<Pricebook2> listasPrecios = [Select Id, Name from Pricebook2];
         Id idLista;
@@ -57,7 +58,20 @@ public with sharing class Cliente {
         }
         Opportunity nuevaReserva = new Opportunity(Titular_de_reserva__c = idContacto, StageName = 'pre-venta', CloseDate = fecha, Name = 'Nombre', Pricebook2Id = idLista);
         insert nuevaReserva;
-        return nuevaReserva;
+        return nuevaReserva.Id;
+    }
+
+    @AuraEnabled
+    public static OpportunityLineItem crearTiquete(string codigoVuelo, string idReserva, string pasajero, string equipaje){
+        try{
+            Product2 vuelo = [SELECT id FROM Product2 WHERE Name =: codigoVuelo];
+            OpportunityLineItem tiquete = new OpportunityLineItem(OpportunityId = idReserva, Product2Id = vuelo.id, Pasajero__c = pasajero, Quantity = 1, Equipaje_permitido__c = equipaje);
+            insert tiquete;
+            return tiquete;  
+        }catch(Exception e){
+            throw new AuraHandledException(e.getMessage());
+        }
+               
     }
 
     public class vuelo{
