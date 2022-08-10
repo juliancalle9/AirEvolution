@@ -67,6 +67,9 @@ public with sharing class Cliente {
             Product2 vuelo = [SELECT id FROM Product2 WHERE Name =: codigoVuelo];
             OpportunityLineItem tiquete = new OpportunityLineItem(OpportunityId = idReserva, Product2Id = vuelo.id, Pasajero__c = pasajero, Quantity = 1, Equipaje_permitido__c = equipaje);
             insert tiquete;
+            Opportunity reserva = [SELECT id, StageName FROM Opportunity WHERE id =: idReserva];
+            reserva.StageName = 'Completado';
+            update reserva;
             return tiquete;  
         }catch(Exception e){
             throw new AuraHandledException(e.getMessage());

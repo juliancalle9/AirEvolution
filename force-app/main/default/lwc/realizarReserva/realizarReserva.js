@@ -14,7 +14,6 @@ const columns = [
     { label: 'Aeropuerto de partida', fieldName: 'aeropuertoSalida', type: 'text'},
     { label: 'Aeropuerto de llegada', fieldName: 'aeropuertoLlegada', type: 'text'},
     { label: 'Precio', fieldName: 'precioUnitario'}, 
-   
 ];
 
 
@@ -39,6 +38,7 @@ export default class RealizarReserva extends LightningElement {
     tiqueteCreado;
     arrayEquipaje;
     seEstaCreadoPasajero = false;
+    modalCrearPasajero;
 
 
     //templates y metodos con wire
@@ -47,6 +47,7 @@ export default class RealizarReserva extends LightningElement {
     @track mostrarVuelos = false;
     @track clienteConReservas = false;
     @track seleccionPasajerosTemplate = false; 
+    @track inicioBuscarCliente = true;
     @wire(obtenerVuelos,{lista : '$listaPrecio'})vuelos(result){
         console.log(this.result);
         if(result.data) {
@@ -97,15 +98,16 @@ export default class RealizarReserva extends LightningElement {
         ];
     }
 
-    /*get contactoId(){
+    get contactoId(){
         if(this.contacto != null){
             return this.contacto.id;
         }else{
             return '';
         }
-    }*/
+    }
 
     //Onclick
+    /*Busca a los clientes para crear la reserva */
     buscarClienteClick(event){
         buscarCliente({numeroIdentificacion : this.numeroidentificacion, tipoIdentificacion : this.tipoidentificacion})
         .then((result) =>{
@@ -128,37 +130,42 @@ export default class RealizarReserva extends LightningElement {
             }
         });
     }
-
+    /*Busca a un pasajero para el tiquete */
     buscarPasajeroClick(event){
         buscarCliente({numeroIdentificacion : this.numeroidentificacion, tipoIdentificacion : this.tipoidentificacion})
         .then((result) =>{
             this.contacto = result;
             this.error = undefined;
             if(this.contacto === null){
-                this.crearCliente = true;
                 this.isModalOpen = false;
+                this.modalCrearPasajero = true;
                 this.seEstaCreadoPasajero = true;
             }else{
                 this.pasajerosTiquete.push(this.contacto);
                 console.log('se encontro');
+                const evt = new ShowToastEvent({
+                    title: 'Pasajero agregado',
+                    message: 'Pasajero agregado con éxito',
+                    variant: 'success',
+                });
+                this.dispatchEvent(evt);
             }
         });
     }
 
+
+    /*Se crea un nuevo cliente o un pasajero */
     crearClienteClick(event){
+        this.contacto = event.detail.id
         if(this.seEstaCreadoPasajero === false){
         this.isModalOpen = true;
-        this.contacto = event.detail.id
-        console.log(this.contacto);
-        }else{
-            this.contacto = event.detail.id
-            this.pasajerosTiquete.push(this.contacto);
-            console.log(this.contacto);
-            this.crearCliente = false;
+        console.log('Entro al de cliente' + this.contacto);
         }
     }
 
+    /*Se guarda el tipo de lista de precios para la reserva y tiquete */
     guardarTipoListaClick(event){
+        console.log('Se esta creando la reserva ' + this.contacto);
         crearReservas({idContacto : this.contacto, tipoTiquete : this.listaPrecio})
         .then((result) =>{
             this.reservaCreada = result;
@@ -168,6 +175,7 @@ export default class RealizarReserva extends LightningElement {
         });
     }
 
+    /*Se crea el tiquete */
     crearTiqueteClick(event){
         crearTiquete({codigoVuelo : this.vueloSeleccionado, idReserva : this.reservaCreada, pasajero : this.contacto, equipaje : this._selected.join(";")})
         .then((result)=>{
@@ -177,12 +185,19 @@ export default class RealizarReserva extends LightningElement {
             this.error = undefined;
             this.tiqueteCreado = result;
             console.log(this.tiqueteCreado);
-            alert('Se ha creado un tiquete para este cliente');
+            const evt = new ShowToastEvent({
+                title: 'Tiquete creado',
+                message: 'Tiquete creado con éxito',
+                variant: 'success',
+            });
+            this.dispatchEvent(evt);
             this.mostrarCrearReserva = false;
+            this.inicioBuscarCliente = false;
             this.seleccionPasajerosTemplate = true;
         });
     }
 
+    /*Se agrega el pasajero y se crea el tiquete del pasajero*/
     agregarPasajeroClick(event){
         for(let i = 0; i < this.pasajerosTiquete.length; i++){
             crearTiquete({codigoVuelo : this.vueloSeleccionado, idReserva : this.reservaCreada, pasajero : this.pasajerosTiquete[i], equipaje : this._selected.join(";")})
@@ -190,12 +205,29 @@ export default class RealizarReserva extends LightningElement {
                 console.log(this.pasajerosTiquete[i]);
                 this.error = undefined;
                 this.tiqueteCreado = result;
+                const evt = new ShowToastEvent({
+                    title: 'Tiquetes creados',
+                    message: 'Tiquetes creados con éxito',
+                    variant: 'success',
+                });
+                this.dispatchEvent(evt);
                 console.log(this.tiqueteCreado);
                 this.mostrarCrearReserva = false;
             });
-            alert('Se han creado los tiquetes para estos clientes');
-
         }
+    }
+
+    pasajeroNuevoExitoso(event){
+        const evt = new ShowToastEvent({
+            title: 'Pasajero creado',
+            message: 'Pasajero creado con éxito' + event.detail.id ,
+            variant: 'success',
+        });
+        this.dispatchEvent(evt);
+        this.contacto = event.detail.id;
+        this.pasajerosTiquete.push(this.contacto);
+        this.modalCrearPasajero = false; 
+        console.log('Aqui se creo el toast pasajero'+ this.contacto);
     }
 
     handleChangeListaPrecios(event){
@@ -230,16 +262,13 @@ export default class RealizarReserva extends LightningElement {
     handleSuccess(event) {
         const evt = new ShowToastEvent({
             title: 'Cliente creado',
-            message: 'Cliente creado con éxito',
+            message: 'Cliente creado con éxito' + event.detail.id ,
             variant: 'success',
         });
-       
         this.dispatchEvent(evt);
         this.crearCliente = false;
         this.contacto = event.detail.id;
-        String(this.contacto.id);
-        console.log(this.contacto.id + ' id contacto');
-        
+        console.log('Aqui se creo el toast '+ this.contacto);
     }
 
     handleEquipaje(event){
@@ -251,6 +280,10 @@ export default class RealizarReserva extends LightningElement {
         const selectedRows = event.detail.selectedRows;
         this.vueloSeleccionado = selectedRows[0].codVuelo;
         console.log(this.vueloSeleccionado);
+    }
+
+    cerrarModalCrearPasajero(event){
+        this.modalCrearPasajero = false;
     }
     
 }

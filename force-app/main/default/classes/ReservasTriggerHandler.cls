@@ -84,7 +84,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
     public static void validacionVueloEnReserva(List<Opportunity> oportunidad){
         for(Opportunity reserva : oportunidad){
             if((reserva.Numero_de_vuelo1__c < 1 && reserva.StageName == 'Pagado')||(reserva.Numero_de_vuelo1__c < 1 && reserva.StageName == 'Completado')){
-                reserva.Numero_de_vuelo1__c.addError('Para completar o pagar una reserva, esad debe tener por lo menos un vuelo asignado.');
+                reserva.Numero_de_vuelo1__c.addError('Para completar o pagar una reserva, esta debe tener por lo menos un vuelo asignado.');
             }
         }
     }
