@@ -1,10 +1,11 @@
-trigger TripulacionTrigger on OpportunityLineItem (before insert,  before update ,before delete
+trigger TripulacionTrigger on Tripulacion__c (before insert,  before update ,before delete
 ,after insert ,after update,after delete,after undelete) {
 
     TripulacionesTriggerHandler tripulacionesTriggerHandler = new TripulacionesTriggerHandler(Trigger.isExecuting, Trigger.size);
 
     Switch on trigger.operationType {
         when BEFORE_INSERT{
+            tripulacionesTriggerHandler.beforeInsert(trigger.new);
             System.debug('Esta es antes de insert');
         }
         when BEFORE_UPDATE{

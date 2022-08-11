@@ -50,14 +50,15 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
         {
             idTiquetes.add(Tiquete.Product2Id);
         }
-        map<id , product2> productos = new map<id , product2>([select ID,avion__r.N_mero_de_pasajeros_clase_negocios__c,avion__r.N_mero_de_pasajeros_clase_turista__c 
-                                                                from Product2 where Id IN :idTiquetes]); 
-        AggregateResult[] groupedResults = [SELECT Count(Id),Product2Id FROM OpportunityLineItem where Product2Id IN :idTiquetes GROUP BY Product2Id  ];
+        map<id , product2> productos = new map<id , product2>([select ID,avion__r.N_mero_de_pasajeros_clase_negocios__c,
+            avion__r.N_mero_de_pasajeros_clase_turista__c from Product2 where Id IN :idTiquetes]); 
+        AggregateResult[] groupedResults = [SELECT Count(Id),Product2Id FROM OpportunityLineItem where Product2Id IN :idTiquetes GROUP BY Product2Id];
         List<Product2> vuelos = new List<Product2>();
         for (AggregateResult ar : groupedResults){
             system.debug(ar.get('Product2Id'));
             system.debug(ar.get('expr0'));
-            Decimal pasajerosTotales = productos.get((string)ar.get('Product2Id')).avion__r.N_mero_de_pasajeros_clase_negocios__c+productos.get((string)ar.get('Product2Id')).avion__r.N_mero_de_pasajeros_clase_turista__c;
+            Decimal pasajerosTotales = productos.get((string)ar.get('Product2Id')).avion__r.N_mero_de_pasajeros_clase_negocios__c
+            +productos.get((string)ar.get('Product2Id')).avion__r.N_mero_de_pasajeros_clase_turista__c;
             if ((pasajerosTotales*1.1)<(integer)ar.get('expr0')) {
                 vuelos.add(new product2(id=(string)ar.get('Product2Id')));
             }
