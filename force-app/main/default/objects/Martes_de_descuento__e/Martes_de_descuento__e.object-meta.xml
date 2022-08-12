@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Evento para los martes de descuento, desde las 00:00 hasta las 15:00</description>
+    <eventType>HighVolume</eventType>
+    <label>Martes de descuento</label>
+    <pluralLabel>Martes de descuentos</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

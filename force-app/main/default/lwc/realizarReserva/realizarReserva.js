@@ -3,7 +3,8 @@ import buscarCliente from '@salesforce/apex/Cliente.buscarCliente';
 import obtenerVuelos from '@salesforce/apex/Cliente.encontrarVuelos';
 import validarReservas from '@salesforce/apex/Cliente.validarReservas';
 import crearReservas from '@salesforce/apex/Cliente.crearReserva';
-import crearTiquete from '@salesforce/apex/cliente.crearTiquete';
+import crearTiquete from '@salesforce/apex/Cliente.crearTiquete';
+
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -16,11 +17,19 @@ const columns = [
     { label: 'Precio', fieldName: 'precioUnitario'}, 
 ];
 
+const columnas = [
+    {label: 'Nombre', fieldName : 'Name'}, 
+    {label: 'Tipo de identificación' , fieldName : 'Tipo_de_identificacion__c'},
+    {label: 'Número de identificación', fieldName : 'Numero_de_identificacion__c'},
+    {label: 'Nacionalidad', fieldName: 'Nacionalidad__c'}
+];
+
 
 export default class RealizarReserva extends LightningElement {
     data = [];
     _selected = [];
     columns = columns;
+    columnas = columnas;
     pasajerosTiquete = [];
 
     //Variables
@@ -45,9 +54,10 @@ export default class RealizarReserva extends LightningElement {
     @track crearCliente = false;
     @track mostrarCrearReserva = false;
     @track mostrarVuelos = false;
-    @track clienteConReservas = false;
     @track seleccionPasajerosTemplate = false; 
     @track inicioBuscarCliente = true;
+ 
+    
     @wire(obtenerVuelos,{lista : '$listaPrecio'})vuelos(result){
         console.log(this.result);
         if(result.data) {
@@ -63,6 +73,7 @@ export default class RealizarReserva extends LightningElement {
         }
 
     }
+
     // metodos get
     get equipajes(){
         return [
@@ -124,7 +135,13 @@ export default class RealizarReserva extends LightningElement {
                     if(result === true){
                         this.isModalOpen = true;
                     }else{
-                        this.clienteConReservas = true;
+                        const evt = new ShowToastEvent({
+                            title: 'Cliente con reserva',
+                            message: 'El cliente ya cuenta con una reserva',
+                            variant: 'warning',
+                        });
+                        this.dispatchEvent(evt);
+                        
                     }
                 }); 
             }

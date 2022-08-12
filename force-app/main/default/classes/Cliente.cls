@@ -77,6 +77,12 @@ public with sharing class Cliente {
                
     }
 
+    @AuraEnabled
+    public static Contact retornarContactos(String idcontacto){ 
+        Contact contacto = [SELECT id, Name, Tipo_de_identificacion__c, Numero_de_identificacion__c FROM Contact WHERE id =: idcontacto];
+        return contacto;
+    }
+
     public class vuelo{
         @AuraEnabled
         public string idVuelo {get;set;} 

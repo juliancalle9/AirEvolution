@@ -18,6 +18,7 @@ trigger Vuelos on Product2 (before insert,  before update ,before delete
         }
         when AFTER_INSERT{
             System.debug('Esta es después de insert');
+            vuelosTriggerHandler.afterInsert(trigger.new, trigger.newMap);
         }
         when AFTER_UPDATE{
             System.debug('Esta es después de update');

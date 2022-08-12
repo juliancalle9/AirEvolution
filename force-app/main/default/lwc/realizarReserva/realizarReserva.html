@@ -32,13 +32,6 @@
         </lightning-card>
 
     </template>
-    
-    <template if:true={clienteConReservas}>
-        <!--MENSAJE CUANDO EL CLIENTE YA TIENE UNA RESERVA-->
-        <div>
-            <p>El cliente ya cuenta con una reserva, por favor completarla para crear una nueva reserva</p>
-        </div>
-    </template>
     <template if:true={mostrarCrearReserva}> 
         <lightning-layout>
             <lightning-card class="slds-align_absolute-center" id="seccionCrearReserva">

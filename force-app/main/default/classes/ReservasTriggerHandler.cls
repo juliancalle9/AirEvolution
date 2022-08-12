@@ -21,7 +21,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
 
     }
     public void afterInsert(List<SObject> newRecords, Map<ID, SObject> newRecordMap){
-
+        cancelarReserva3H(newRecords);
     }
     public void afterUpdate(List<SObject> oldRecords, List<SObject> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
 
@@ -101,6 +101,23 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
                 String NumeroDeReserva = EncodingUtil.convertToHex(Crypto.generateAesKey(128)).substring(0, 6);
                 opp.Name = Titulares.get(opp.Titular_de_Reserva__c).Name.replace(' ', '') + NumeroDeReserva;
                 System.debug('nombre de reserva: '+ opp.Name);
+            }
+        }
+    }
+
+    public static void cancelarReserva3H(List<Opportunity> oportunidades) {
+        
+        for (Opportunity r : oportunidades) {
+            DateTime fecha = (r.CreatedDate).addHours(3);
+            integer segundo = fecha.second();
+            integer minuto = fecha.minute();
+            integer hora = fecha.hour();
+            integer dia = fecha.day();
+            integer mes = fecha.month();
+            if(r.StageName.equals('pre-venta')  || r.StageName.equals('Completado')){
+                schedulableCancelarReserva reserva = new schedulableCancelarReserva(r.Id);
+                String sch = segundo + ' ' + minuto + ' ' + hora + ' ' + dia + ' ' + mes + ' ? *';
+                String jobID = system.schedule(r.Name, sch, reserva);
             }
         }
     }

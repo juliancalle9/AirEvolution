@@ -18,6 +18,7 @@ trigger Reservas on Opportunity (before insert,  before update ,before delete
         }
         when AFTER_INSERT{
             System.debug('Esta es después de insert');
+            reservasTriggerHadler.afterInsert(trigger.new, trigger.newMap);
         }
         when AFTER_UPDATE{
             System.debug('Esta es después de update');
