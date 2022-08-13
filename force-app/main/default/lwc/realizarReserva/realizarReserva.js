@@ -63,7 +63,7 @@ export default class RealizarReserva extends LightningElement {
         if(result.data) {
             console.log('si trajo algo');
             this.data = result.data;
-            console.log(this.data[0]);
+            console.log(this.data[0].aeropuertoSalida);
             this.error = undefined;
         }else if(result.error) {
             console.log('no trajo nada');

@@ -16,7 +16,6 @@ public with sharing class Cliente {
     }
     @AuraEnabled
     public static Boolean validarReservas(string idContacto){
-        date fecha = date.today();
         List<Opportunity> reservaCreada = new List<Opportunity>();
         List<Opportunity> reservas = [SELECT Id, Name FROM Opportunity WHERE Titular_de_reserva__c =: idContacto AND StageName NOT IN ('Pagado', 'No pagado')];
         if(reservas.size() == 0){
@@ -75,12 +74,6 @@ public with sharing class Cliente {
             throw new AuraHandledException(e.getMessage());
         }
                
-    }
-
-    @AuraEnabled
-    public static Contact retornarContactos(String idcontacto){ 
-        Contact contacto = [SELECT id, Name, Tipo_de_identificacion__c, Numero_de_identificacion__c FROM Contact WHERE id =: idcontacto];
-        return contacto;
     }
 
     public class vuelo{

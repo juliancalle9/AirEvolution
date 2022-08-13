@@ -21,8 +21,8 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
         AsignarTripulacion(newRecords);
 
     }
-    public void afterUpdate(List<SObject> oldRecords, List<SObject> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
-
+    public void afterUpdate(List<Product2> oldRecords, List<Product2> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
+        //AsignarTripulacion(newRecords);
     }
     public void afterDelete(List<SObject> oldRecords, Map<ID, SObject> oldRecordMap){
 

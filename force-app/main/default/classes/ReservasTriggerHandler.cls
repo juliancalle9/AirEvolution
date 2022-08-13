@@ -108,7 +108,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
     public static void cancelarReserva3H(List<Opportunity> oportunidades) {
         
         for (Opportunity r : oportunidades) {
-            DateTime fecha = (r.CreatedDate).addHours(3);
+            DateTime fecha = (r.CreatedDate).addSeconds(60);
             integer segundo = fecha.second();
             integer minuto = fecha.minute();
             integer hora = fecha.hour();
@@ -121,4 +121,14 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
             }
         }
     }
+
+    public static void procesosDeAprobacion(List<Opportunity> reservas){
+        Approval.ProcessSubmitRequest solicitud = new Approval.ProcessSubmitRequest();
+        solicitud.setComments('Se ha creado una reserva por un valor mayor a 3 millones y un descuento mayor la 15%');
+        for (Opportunity o : reservas) {
+            solicitud.setObjectId(o.id);
+        }
+        Approval.ProcessResult result = Approval.process(solicitud);    
+    }
+    
 }
