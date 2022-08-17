@@ -95,7 +95,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
             
             //Map<Id, Contact>  pasajerosAntiguos = new Map<Id, Contact>([SELECT id, Name, Email FROM Contact
                                                                         // WHERE Id =: pasajerosAntiguosID]); 
-            //enviarCorreo(pasajerosAntiguosID, plantillaPasajeroAntiguo);
+            enviarCorreo(pasajerosAntiguosID, plantillaPasajeroAntiguo);
 
 
         } catch (Exception e) {
