@@ -28,9 +28,11 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 integer actual = tiempo.hourGmt(); 
                 if(partida == actual){
                     idVuelo.add(v.Id);
+                    v.Estado__c = 'Check in';
                     vuelos24H.add(v); 
                 }
             }
+            update vuelos;
             List<PricebookEntry> entrada = [SELECT id, UnitPrice, Descuento_de_martes__c, Descuento_del_50__c
                                             FROM PricebookEntry WHERE Product2Id =: idvuelo];
             for(PricebookEntry t : entrada){
@@ -43,7 +45,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 System.debug(t.UnitPrice);  
             }
             update entrada;
-            List<OpportunityLineItem> tiquetes = [SELECT id, Pasajero__c FROM OpportunityLineItem 
+            List<OpportunityLineItem> tiquetes = [SELECT id, Pasajero__c, Asiento__c,Equipaje_permitido__c FROM OpportunityLineItem 
                                                     WHERE Product2Id =: idVuelo];
             for(OpportunityLineItem tique : tiquetes){
                 pasajerosID.add(tique.Pasajero__c);
@@ -52,7 +54,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
 
             Map<Id, Contact>  pasajeros = new Map<Id, Contact>([SELECT id, Name, Email FROM Contact WHERE Id =: pasajerosID]); 
             for(OpportunityLineItem t : tiquetes){
-                String mensaje ='Hola '+ pasajeros.get(t.Pasajero__c).Name + 'hora de realizar el check-in. \n' +
+                String mensaje ='Hola '+ pasajeros.get(t.Pasajero__c).Name + ' hora de realizar el check-in. \n' +
                 'Asiento: ' + t.Asiento__c+'\n'+ 'Equipaje: ' + t.Equipaje_permitido__c;
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 //Direccion de envio
@@ -60,7 +62,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 
                 mail.setToAddresses(toAddresses);
                 // Direccion de respuesta 
-                mail.setReplyTo('support@acme.com');
+                mail.setReplyTo('juliancalle9@gmail.com');
                 // Nombre para mostrar
                 mail.setSenderDisplayName('Salesforce Support');
                 //Asunto
@@ -73,7 +75,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 //Mensaje
                 Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
                 Messaging.SendEmailResult[] results = Messaging.sendEmail( new Messaging.SingleEmailMessage[] { mail }); 
-                System.debug('Se envio el correo supuestamente'); 
+                 
             }
 
             for(Product2 v : vuelos24H){
