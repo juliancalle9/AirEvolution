@@ -1,7 +1,7 @@
 public class DescuentoMartes implements Database.Batchable<sObject>{
     
 		public Database.QueryLocator start(Database.BatchableContext BC){
-            string query = 'select id, unitprice from PricebookEntry where Descuento_de_martes__c = false AND Descuento_del_50__c = false AND IsActive = true';
+            string query = 'select id, unitprice, Pricebook2Id from PricebookEntry where Descuento_de_martes__c = false AND Descuento_del_50__c = false AND IsActive = true';
             return Database.getQueryLocator(query);
         }
     
@@ -12,26 +12,36 @@ public class DescuentoMartes implements Database.Batchable<sObject>{
                 a.Descuento_de_martes__c = True;
             }
             update precios;
-            set<string> usuarios = new set<string>();
-            Profile perfil = [select id from Profile where Name = 'Gestión de ventas'];
-            List<User> listaUsuarios = [Select Id from user where ProfileId =: perfil.Id];
-            for(user u : listaUsuarios){
-                 usuarios.add(u.Id);
+            List<Pricebook2> lista = [SELECT Id from Pricebook2];
+            for(Pricebook2 l : lista){
+                Messaging.CustomNotification notification = new Messaging.CustomNotification();
+                CustomNotificationType notificationType = 
+                [SELECT Id, DeveloperName FROM CustomNotificationType 
+                WHERE DeveloperName='Martes_de_descuento'];
+        
+                // Create a new custom notification
+                List<user> usuarios = [SELECT id, name FROM user WHERE UserRole.Name = 'Agente de ventas' AND IsActive = true];
+                set<String> ids = new set<String>();
+                for(user a: usuarios){
+                ids.add(a.Id);
+                }
+
+                // Set the contents for the notification
+                notification.setTitle('¡Inicio martes de descuento!');
+                notification.setBody('Todos los tiquetes tienen 35% de descuento desde las 00:00 hasta las 15:00');
+
+                // Set the notification type and target
+                notification.setNotificationTypeId(notificationType.Id);
+                notification.setTargetId(l.Id);
+                
+            
+                try{
+                    notification.send(ids);
+                }catch(Exception e){
+                    System.debug('No se pudo enviar la notificación: ' + e.getMessage());
+                }
             }
-            List<Pricebook2> listaPrecios = new List<Pricebook2>();
-            CustomNotificationType notificacionPers = [SELECT Id, DeveloperName FROM CustomNotificationType WHERE DeveloperName='Martes_de_descuento'];
-            Messaging.CustomNotification notificacion = new Messaging.CustomNotification();
-            notificacion.setTitle('Inicia martes de descuento');
-            notificacion.setBody('Descuento del 15% en todos los tiquetes desde las 00:00 hasta las 15:00 (no aplica para los vuelos que salen en las próximas 24 horas)');
-            notificacion.setNotificationTypeId(notificacionPers.Id);
-            for(Pricebook2 p : listaPrecios){
-                notificacion.setTargetId(p.id);
-            }
-            try{
-                notificacion.send(usuarios);
-            }catch(Exception e){
-                System.debug('No se pudo enviar la notificación: ' + e.getMessage());
-            }
+            
         }
     
         public void finish(Database.BatchableContext BC){

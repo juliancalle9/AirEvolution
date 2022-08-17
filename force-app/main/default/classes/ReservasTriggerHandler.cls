@@ -21,7 +21,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
 
     }
     public void afterInsert(List<SObject> newRecords, Map<ID, SObject> newRecordMap){
-        cancelarReserva3H(newRecords);
+        
     }
     public void afterUpdate(List<SObject> oldRecords, List<SObject> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
 
@@ -33,7 +33,15 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
 
     }
 
+    //Envio de correo cuando una reserva es pagada
     public static void ReservaPagada(List<Opportunity> reserva){
+        set <Id> TitularesID = new set<Id>();
+        List<String> idPasajeros = new List<String>();
+        for(Opportunity opp : reserva){
+            TitularesID.add(opp.Titular_de_Reserva__c);
+        }
+        Map<Id, Contact>  Titulares = new Map<Id, Contact>([SELECT Name, Email FROM Contact WHERE Id = : TitularesID]);
+        
         for (Opportunity opp : reserva){
             if (opp.StageName == 'Pagado') {
                 //Actualizar la fecha de pago
@@ -42,7 +50,8 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
                 //Enviar correo de reserva                
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 //Direccion de envio
-                String[] toAddresses = new String[] { 'juliancalle9@gmail.com' };                
+                String[] toAddresses = new String[] { Titulares.get(opp.Titular_de_Reserva__c).Email };
+                             
                 mail.setToAddresses(toAddresses);
                 // Direccion de respuesta 
                 mail.setReplyTo('support@acme.com');
@@ -51,8 +60,8 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
                 //Asunto
                 mail.setSubject('CONFIRMACION DE RESERVA');
                 //Cuerpo del mensaje
-                mail.setPlainTextBody('Hola '+ opp.Titular_de_reserva__c +' para nosotros es un placer informale que su reserva número ' 
-                                    + opp.Numero_de_reserva__c + ' ha sido creada exitosamente');
+                mail.setPlainTextBody('Hola '+ Titulares.get(opp.Titular_de_Reserva__c).Name + ' para nosotros es un placer informale que su reserva número ' 
+                    + opp.Name +'con ' + opp.Numero_de_vuelo1__c +' tiquetes ha sido creada exitosamente');
                 //Firma del mensaje
                 mail.setUseSignature(false);
                 //Mensaje
@@ -81,6 +90,9 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
         return sendResult;
     }
 
+    /*
+        Validación del estado de la reserva cuando se intenta pasar al estado pagado sin tener un vuelo
+    */
     public static void validacionVueloEnReserva(List<Opportunity> oportunidad){
         for(Opportunity reserva : oportunidad){
             if((reserva.Numero_de_vuelo1__c < 1 && reserva.StageName == 'Pagado')||(reserva.Numero_de_vuelo1__c < 1 && reserva.StageName == 'Completado')){
@@ -89,6 +101,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
         }
     }
 
+    /* Agrega el nombre del titular y el número de la reserva al nombre de la reserva*/
     public static void NombreDeReserva(List<Opportunity> opportunities) {
         set <Id> TitularesID = new set<Id>();
         for(Opportunity opp : opportunities){
@@ -105,30 +118,6 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
         }
     }
 
-    public static void cancelarReserva3H(List<Opportunity> oportunidades) {
-        
-        for (Opportunity r : oportunidades) {
-            DateTime fecha = (r.CreatedDate).addSeconds(60);
-            integer segundo = fecha.second();
-            integer minuto = fecha.minute();
-            integer hora = fecha.hour();
-            integer dia = fecha.day();
-            integer mes = fecha.month();
-            if(r.StageName.equals('pre-venta')  || r.StageName.equals('Completado')){
-                schedulableCancelarReserva reserva = new schedulableCancelarReserva(r.Id);
-                String sch = segundo + ' ' + minuto + ' ' + hora + ' ' + dia + ' ' + mes + ' ? *';
-                String jobID = system.schedule(r.Name, sch, reserva);
-            }
-        }
-    }
-
-    public static void procesosDeAprobacion(List<Opportunity> reservas){
-        Approval.ProcessSubmitRequest solicitud = new Approval.ProcessSubmitRequest();
-        solicitud.setComments('Se ha creado una reserva por un valor mayor a 3 millones y un descuento mayor la 15%');
-        for (Opportunity o : reservas) {
-            solicitud.setObjectId(o.id);
-        }
-        Approval.ProcessResult result = Approval.process(solicitud);    
-    }
     
+   
 }

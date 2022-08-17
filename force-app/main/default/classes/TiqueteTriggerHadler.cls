@@ -10,7 +10,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
     public void beforeInsert(List<OpportunityLineItem> newRecords){
         Sobreventa(newRecords);
         pasajeroDeReserva(newRecords);
-       // AsignarClaseNegocios(newRecords);
+        AsignarClaseNegocios(newRecords);
     }
     public void beforeUpdate(List<OpportunityLineItem> oldRecords, List<OpportunityLineItem> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
 
@@ -73,23 +73,22 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
         }
     }
 
-   /* public static void AsignarClaseNegocios(List<OpportunityLineItem> tiquList){
-        Set<Id> idVuelo = new Set<Id>();
-        for (OpportunityLineItem tiq : tiquList){
-            idVuelo.add(tiq.Product2Id);
+    public static void AsignarClaseNegocios(List<OpportunityLineItem> tiquList){
+        Pricebook2 listaPrecio = [SELECT Id FROM Pricebook2 WHERE name = 'Tiquete negocios' limit 1];
+        set<Id> idReserva = new set<Id>();
+        for (OpportunityLineItem tiquete: tiquList) {
+            idReserva.add(tiquete.OpportunityId);
         }
-        string IdNegocios = [SELECT Id FROM Pricebook2 WHERE name = 'Tiquete negocios' Limit 1].Id;
-        List<PricebookEntry> listEntrada = [SELECT Id, Pricebook2Id, Product2Id FROM PricebookEntry WHERE Pricebook2Id =: IdNegocios AND Product2Id IN : idVuelo];
-        for (PricebookEntry EntradaPrecios : listEntrada) {
-            for (OpportunityLineItem tiq : tiquList){
-                if (tiq.Product2Id == EntradaPrecios.Product2Id) {
-                    tiq.Equipaje_Permitido__c = 'Personal;Maleta de cabina;Maleta de bodega';
-                }                
-            
-            }        
+        List<Opportunity> reservas = [SELECT Id FROM Opportunity WHERE Id IN : idReserva AND Pricebook2Id =: listaPrecio.Id ];
+        for(OpportunityLineItem t: tiquList){
+            for(Opportunity r: reservas){
+                if(t.OpportunityId == r.Id){
+                    t.Equipaje_Permitido__c = 'Personal;Maleta de Cabina;Maleta de Bodega';
+                }
+            }
         }  
 
-    }*/
+    }
 
 
 }

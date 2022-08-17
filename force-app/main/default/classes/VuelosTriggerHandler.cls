@@ -18,7 +18,7 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
 
     }
     public void afterInsert(List<Product2> newRecords, Map<ID, SObject> newRecordMap){
-        AsignarTripulacion(newRecords);
+        //AsignarTripulacion(newRecords);
 
     }
     public void afterUpdate(List<Product2> oldRecords, List<Product2> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
@@ -44,7 +44,7 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
         }
     }
 
-    public void AsignarTripulacion(List<Product2> vuelos){
+    /*public void AsignarTripulacion(List<Product2> vuelos){
         for(Product2 v : vuelos){
             DateTime fecha = (v.fecha_y_hora_de_partida__c).addDays(-7);
             integer segundo = 0;
@@ -57,5 +57,5 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
             String sch = '0 0 0 '+ dia + ' ' + mes + ' ? *';
             String jobID = system.schedule(v.Name, sch, m);
         }
-    }
+    }*/
 }
