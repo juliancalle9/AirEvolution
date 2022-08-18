@@ -43,19 +43,4 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
             }
         }
     }
-
-    /*public void AsignarTripulacion(List<Product2> vuelos){
-        for(Product2 v : vuelos){
-            DateTime fecha = (v.fecha_y_hora_de_partida__c).addDays(-7);
-            integer segundo = 0;
-            integer minuto = 0;
-            integer hora = 0;
-            integer dia = fecha.day();
-            integer mes = fecha.month();
-            
-            schedulableAsignarTripulacionVuelo m = new schedulableAsignarTripulacionVuelo(v.ID);
-            String sch = '0 0 0 '+ dia + ' ' + mes + ' ? *';
-            String jobID = system.schedule(v.Name, sch, m);
-        }
-    }*/
 }

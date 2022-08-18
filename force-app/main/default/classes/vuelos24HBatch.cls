@@ -13,7 +13,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
         Datetime tiempo = Datetime.now();
         
         string plantillaPasajeroAntiguo = 'Pasajeros antiguos';
-        System.debug(tiempo); 
+       
         List<Product2> vuelos24H = new List<Product2>();
         List<Product2> vuelosAntiguos = [SELECT Id, Aeropuerto_de_llegada__c,Aeropuerto_de_partida__c 
                                             FROM Product2 WHERE Estado__c = 'Terminado'];
@@ -22,7 +22,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
         set <Id> pasajerosID = new set<Id>();
         List<string> pasajerosAntiguosID = new List<string>();
         try {
-
+            //Se busca los vuelos que salen en 24 horas del dia siguiente.
             for (Product2 v : vuelos) {
                 integer partida = (v.fecha_y_hora_de_partida__c).hourGMT();
                 integer actual = tiempo.hourGmt(); 
@@ -33,6 +33,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 }
             }
             update vuelos;
+            //Se buscan la entrada de lista de precios de los vuelos encontrados y se actualiza el precio
             List<PricebookEntry> entrada = [SELECT id, UnitPrice, Descuento_de_martes__c, Descuento_del_50__c
                                             FROM PricebookEntry WHERE Product2Id =: idvuelo];
             for(PricebookEntry t : entrada){
@@ -51,7 +52,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 pasajerosID.add(tique.Pasajero__c);
                 System.debug(tique.Pasajero__c);  
             }
-
+            //Envio de email a los pasajeros
             Map<Id, Contact>  pasajeros = new Map<Id, Contact>([SELECT id, Name, Email FROM Contact WHERE Id =: pasajerosID]); 
             for(OpportunityLineItem t : tiquetes){
                 String mensaje ='Hola '+ pasajeros.get(t.Pasajero__c).Name + ' hora de realizar el check-in. \n' +
@@ -78,6 +79,7 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                  
             }
 
+            //Se busca los pasajeros antiguos. Primero buscando los vuelos antiguos
             for(Product2 v : vuelos24H){
                 for(Product2 vA : vuelosAntiguos){
                     if(vA.Aeropuerto_de_partida__c == v.Aeropuerto_de_partida__c && vA.Aeropuerto_de_llegada__c == v.Aeropuerto_de_llegada__c){
@@ -85,23 +87,17 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                     }
                 }
             }
-
+            
             List<OpportunityLineItem> tiquetesViejos = [SELECT id, Pasajero__c FROM OpportunityLineItem 
                                                     WHERE Product2Id =: idVueloAntiguo];
             for(OpportunityLineItem tique : tiquetesViejos){
                 pasajerosAntiguosID.add(tique.Pasajero__c);
                   
             }
-            
-            //Map<Id, Contact>  pasajerosAntiguos = new Map<Id, Contact>([SELECT id, Name, Email FROM Contact
-                                                                        // WHERE Id =: pasajerosAntiguosID]); 
             enviarCorreo(pasajerosAntiguosID, plantillaPasajeroAntiguo);
-
-
         } catch (Exception e) {
             System.debug(e.getMessage());
         }
-        
     }
 
     public void finish(Database.BatchableContext BC){
