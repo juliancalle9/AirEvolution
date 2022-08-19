@@ -30,6 +30,7 @@ public without sharing class VuelosTriggerHandler implements TriggerHandler{
     public void afterUndelete(List<SObject> newRecords, Map<ID, SObject> newRecordMap){
 
     }
+    //Se desactiva los vuelos cuyo estado es terminado o cancelado asignando la fecha de cancelación 
     public void desactivarVuelo(List<Product2> vuelos){
         for(Product2 v : vuelos){
             if(v.IsActive != false && (v.Estado__c == 'Terminado' || v.Estado__c == 'Cancelado')){

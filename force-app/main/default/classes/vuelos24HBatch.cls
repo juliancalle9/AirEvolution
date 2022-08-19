@@ -28,11 +28,11 @@ public with sharing class vuelos24HBatch implements Database.Batchable<sObject> 
                 integer actual = tiempo.hourGmt(); 
                 if(partida == actual){
                     idVuelo.add(v.Id);
-                    v.Estado__c = 'Check in';
+                    
                     vuelos24H.add(v); 
                 }
             }
-            update vuelos;
+           
             //Se buscan la entrada de lista de precios de los vuelos encontrados y se actualiza el precio
             List<PricebookEntry> entrada = [SELECT id, UnitPrice, Descuento_de_martes__c, Descuento_del_50__c
                                             FROM PricebookEntry WHERE Product2Id =: idvuelo];

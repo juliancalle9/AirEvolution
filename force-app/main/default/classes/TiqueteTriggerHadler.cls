@@ -31,7 +31,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
 
     }
 
-
+    //metodo asignar el pasajero al tiquete
     public static void pasajeroDeReserva(List<OpportunityLineItem> opportunityLineItemNeW){
         List<Opportunity> opportunityNew = new List<Opportunity>([SELECT Id,Titular_de_reserva__c FROM Opportunity WHERE StageName = 'pre-venta']);
         for (Opportunity r: opportunityNew){
@@ -43,7 +43,7 @@ public without sharing class TiqueteTriggerHadler implements TriggerHandler{
         }
     }
 
-
+    //Metodo para evitar la sobreventa de tiquetes
     public void Sobreventa(List<OpportunityLineItem> tiquetes){
         set <Id> idTiquetes = new set<Id>();
         for (opportunityLineItem Tiquete : tiquetes)

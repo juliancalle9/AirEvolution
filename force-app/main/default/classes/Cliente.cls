@@ -7,7 +7,6 @@ public with sharing class Cliente {
             date fecha = date.today();
             Contact cliente = [SELECT id, name FROM Contact 
                                 WHERE Numero_de_identificacion__c = :numeroIdentificacion AND Tipo_de_identificacion__c =: tipoIdentificacion];
-            //validarReservas(cliente);
             return cliente.Id;
 
         }catch(Exception e){
@@ -17,6 +16,7 @@ public with sharing class Cliente {
     @AuraEnabled
     public static Boolean validarReservas(string idContacto){
         List<Opportunity> reservaCreada = new List<Opportunity>();
+        //Valida en que estados se encuentras las reservas anteriores del cliente
         List<Opportunity> reservas = [SELECT Id, Name FROM Opportunity WHERE Titular_de_reserva__c =: idContacto AND StageName NOT IN ('Pagado', 'No pagado')];
         if(reservas.size() == 0){
             return true;
@@ -25,9 +25,9 @@ public with sharing class Cliente {
         }
     }
 
+    //Encuentra los vuelos disponibles y los retorna en forma de lista con un wrapper
     @AuraEnabled(cacheable=true)
     public static list<vuelo> encontrarVuelos(string lista){
-        
         try{
             Pricebook2 listaPrecio = [SELECT id FROM Pricebook2 WHERE Name =: lista];
             List<vuelo> vuelosLista = new List<vuelo>();
@@ -45,6 +45,7 @@ public with sharing class Cliente {
             throw new AuraHandledException(e.getMessage());
         }
     }
+    //Crea la reserva para el cliente de acuerdo al tipo de tiquete que selecciono
     @AuraEnabled
     public static string crearReserva(string idContacto, string tipoTiquete){
         date fecha = date.today();
@@ -59,7 +60,7 @@ public with sharing class Cliente {
         insert nuevaReserva;
         return nuevaReserva.Id;
     }
-
+    //Crea los tiquetes con la informacion del pasajero y la reserva, ademas de su equipaje
     @AuraEnabled
     public static OpportunityLineItem crearTiquete(string codigoVuelo, string idReserva, string pasajero, string equipaje){
         try{
@@ -75,7 +76,8 @@ public with sharing class Cliente {
         }
                
     }
-
+    
+    //Wrapper para devolver una lista con los vuelos y su información 
     public class vuelo{
         @AuraEnabled
         public string idVuelo {get;set;} 

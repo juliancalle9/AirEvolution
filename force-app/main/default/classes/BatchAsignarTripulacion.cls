@@ -5,11 +5,14 @@ public with sharing class BatchAsignarTripulacion implements Database.Batchable<
     }
 
     public Database.QueryLocator start(Database.BatchableContext BC){
+        Datetime modificacionPasado = Datetime.now().addDays(-7);
+        Datetime modificacionPresente = Datetime.now();
         return Database.getQueryLocator(
-            'SELECT Id, fecha_y_hora_de_partida__c, Name FROM Product2 WHERE IsActive = true AND fecha_y_hora_de_partida__c != null');
+            'SELECT Id, fecha_y_hora_de_partida__c, Name, LastModifiedDate FROM Product2 WHERE IsActive = true AND fecha_y_hora_de_partida__c != null');
         }
 
     public void execute(Database.BatchableContext BC, List<Product2> vuelos){
+        //Busca los vuelos a los que les faltan 7 días para su salida
         List<Product2> vuelosAsignar = new List<Product2>();
         Date fechaVuelo;
         for (Product2 v : vuelos) {
@@ -19,28 +22,21 @@ public with sharing class BatchAsignarTripulacion implements Database.Batchable<
                 vuelosAsignar.add(v);
             }
         }
+        //Se envia la notificación sobre que vuelos necesitan tripulación
         for(Product2 v : vuelosAsignar){
             Messaging.CustomNotification notification = new Messaging.CustomNotification();
             CustomNotificationType notificationType = 
             [SELECT Id, DeveloperName FROM CustomNotificationType 
              WHERE DeveloperName='Recordatorio_asignar_tripulacion'];
-        
-            // Create a new custom notification
             List<user> usuarios = [SELECT id, name FROM user WHERE UserRole.Name = 'Supervisor de vuelo'];
             set<String> ids = new set<String>();
             for(user a: usuarios){
                 ids.add(a.Id);
             }
-
-            // Set the contents for the notification
             notification.setTitle('Asignar Tripulacion al vuelo:  '+ v.Name);
             notification.setBody('El vuelo esta proximo a salir! no olvide asignar la tripulacion');
-
-            // Set the notification type and target
             notification.setNotificationTypeId(notificationType.Id);
             notification.setTargetId(v.Id);
-            
-            // Actually send the notification
             try {
                 notification.send(ids);
             }

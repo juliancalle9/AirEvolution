@@ -4,6 +4,7 @@ public class TripulacionRequerida {
             try{
             
                 DateTime limitDate = DateTime.now().addDays(7);
+                //Obtiene los vuelos que salen en una semana 
                 List<Product2> vuelos = [SELECT Id, Name, Copiloto__c, Piloto__c,  Avion__r.Auxiliares_de_Vuelo_Requeridos__c, (Select id from Tripulaciones__r)
                 FROM Product2 WHERE IsActive = true AND Estado__c = 'En venta' AND
                                          Fecha_y_hora_de_partida__c > today 

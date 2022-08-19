@@ -1,5 +1,4 @@
 public with sharing class ReservaTerminarBatch implements Database.Batchable<sObject> {
-    
     public Database.QueryLocator start(Database.BatchableContext BC){
         Datetime modificacionPasado = Datetime.now().addHours(-3);
         Datetime modificacionPresente = Datetime.now();

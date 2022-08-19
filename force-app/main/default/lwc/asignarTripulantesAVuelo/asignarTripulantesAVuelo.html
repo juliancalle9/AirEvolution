@@ -28,8 +28,37 @@
                 <lightning-card>
                     <c-editar-vuelo vuelo-id = {idvuelom}> </c-editar-vuelo>
                 </lightning-card>
-
                 
+                    
+                   
+                    <!--<lightning-accordion>
+                        <lightning-accordion-section name="info" label="Información">
+                            <lightning-input type="text" label="Código:"  value={codigoV} read-only class="c-input-text"></lightning-input>
+                            <lightning-input type="number" label="Auxiliares Requeridos:" value={auxRequeridos} read-only class="c-input-text"></lightning-input>
+                            <lightning-input type="number" label="Auxiliares faltantes:"  value={auxFaltantes} read-only class="c-input-text"></lightning-input>
+                            <lightning-input type="checkbox" label="Piloto"  checked={tienePiloto} disabled class="c-input-text"></lightning-input>
+                            <lightning-input type="checkbox" label="Copiloto" checked={tieneCopiloto} disabled class="c-input-text" read-only></lightning-input>
+                        </lightning-accordion-section>
+                        <lightning-accordion-section name="Asignartripulacion" label="Asignar Tripulación">
+                      
+                                
+                            
+                           
+                            <lightning-dual-listbox label="Seleccione Auxiliares de Vuelo"
+                                                    source-label="Disponibles"
+                                                    selected-label="Seleccionados"
+                                                    options={options}
+                                                    onchange={handleChange}    ></lightning-dual-listbox>
+
+                            
+                        </lightning-accordion-section>
+
+                        
+
+                    </lightning-accordion>-->
+                   
+
+             
                 <!-- Modal/Popup Box LWC footer starts here -->
                 <footer class="slds-modal__footer">
                     <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>

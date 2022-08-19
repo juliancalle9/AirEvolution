@@ -7,12 +7,14 @@ public class desactivacionDescuentoMartes implements Database.Batchable<sObject>
         }
     
         public void execute(Database.BatchableContext BC, List<pricebookEntry> precios){
+            //devuelve el precio a su estado original
             for(pricebookEntry a: precios){
                 a.UnitPrice = a.UnitPrice/0.65;
                 a.Descuento_de_martes__c = false;
             }
             
             update precios;
+            //Se envia la notificación avisando que se termino el descuento del martes
             List<Pricebook2> lista = [SELECT Id from Pricebook2];
             for(Pricebook2 l : lista){
                 Messaging.CustomNotification notification = new Messaging.CustomNotification();
