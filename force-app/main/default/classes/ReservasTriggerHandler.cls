@@ -8,14 +8,15 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
     }
 
     public void beforeInsert(List<Opportunity> newRecords){
-        ReservaPagada(newRecords);
+       // ReservaPagada(newRecords);
         validacionVueloEnReserva(newRecords);
         NombreDeReserva(newRecords);
     }
     public void beforeUpdate(List<Opportunity> oldRecords, List<Opportunity> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
-        ReservaPagada(newRecords);
+        //ReservaPagada(newRecords);
         validacionVueloEnReserva(newRecords);
         NombreDeReserva(newRecords);
+        
     }
     public void beforeDelete(List<SObject> oldRecords, Map<ID, SObject> oldRecordMap){
 
@@ -24,7 +25,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
         
     }
     public void afterUpdate(List<SObject> oldRecords, List<SObject> newRecords, Map<ID, SObject> oldRecordMap, Map<ID, SObject> newRecordMap){
-
+       
     }
     public void afterDelete(List<SObject> oldRecords, Map<ID, SObject> oldRecordMap){
 
@@ -34,7 +35,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
     }
 
     //Envio de correo cuando una reserva es pagada
-    public static void ReservaPagada(List<Opportunity> reserva){
+    /*public static void ReservaPagada(List<Opportunity> reserva){
         set <Id> TitularesID = new set<Id>();
         List<String> idPasajeros = new List<String>();
         for(Opportunity opp : reserva){
@@ -88,7 +89,7 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
             }
         }
         return sendResult;
-    }
+    }*/
 
     /*
         Validación del estado de la reserva cuando se intenta pasar al estado pagado sin tener un vuelo
@@ -117,6 +118,8 @@ public with sharing class ReservasTriggerHandler implements TriggerHandler {
             }
         }
     }
+
+    
 
     
    
